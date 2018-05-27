@@ -24,10 +24,6 @@ Adafruit_SSD1306 display(OLED_RESET);
 #define ALARM_TIME_THRESHOLD 20
 #define GPS_TIME_THRESHOLD 120
 
-
-
-
-
 SoftwareSerial mySerial(3, 2);
 
 Adafruit_GPS GPS(&mySerial);
@@ -38,14 +34,10 @@ int alarm_radius = MIN_RADIUS;
 float dist = 0;
 float angle = 0;
 
-
 float anchor_lat;
 float anchor_lon;
 float boat_lat;
 float boat_lon;
-
-int boat_x = 96;
-int boat_y = 16;
 
 boolean set = false;
 int current = HIGH;
@@ -64,8 +56,6 @@ boolean alarm = false;
 boolean nofix = false;
 uint32_t last_fix = 0;
 
-
-
 void setup()  
 {  
   pinMode(BEEP_PIN, OUTPUT);
@@ -83,7 +73,6 @@ void setup()
   GPS.sendCommand(PMTK_ENABLE_SBAS);
   GPS.sendCommand(PMTK_ENABLE_WAAS);
   
-  
   OCR0A = 0xAF;
   TIMSK0 |= _BV(OCIE0A);  delay(1000);
   
@@ -96,10 +85,7 @@ void setup()
   display.display();
   delay(1000);
   
-  
-
   while(!GPS.fix){
-
     if (GPS.newNMEAreceived()) {
     if (!GPS.parse(GPS.lastNMEA())) return;
     }
@@ -215,7 +201,6 @@ void loop()                     // run over and over again
 
     }
 
-  
   // do every second
   if (millis() - timer > ONE_SECOND) { 
     timer = millis();
@@ -254,10 +239,6 @@ void loop()                     // run over and over again
       boat_lat = GPS.latitudeDegrees;
       boat_lon = GPS.longitudeDegrees;
       dist = haversine(boat_lat, boat_lon, anchor_lat, anchor_lon);
-      //angle = calc_angle(boat_lat, boat_lon, anchor_lat, anchor_lon);
-      //boat_x = dist * cos(angle) / alarm_radius * 16 + 80;
-      //boat_y = dist * sin(angle) / alarm_radius * 16 + 16;
-      //display.drawPixel(boat_x, boat_y, WHITE);
     }
   }
 }
@@ -269,28 +250,14 @@ float haversine(float lat1, float lon1, float lat2, float lon2){
   lon1 = lon1 / DEG2RAD;
   lon2 = lon2 / DEG2RAD;
   
-  
   return(2.0 * r * asin(sqrt(sin(pow((lat2 - lat1) / 2.0, 2.0)) +
                       cos(lat1) * cos(lat2) * sin(pow((lon2 - lon1) / 2.0, 2.0)))));
-
 }
 
 //θ = atan2( sin Δλ ⋅ cos φ2 , cos φ1 ⋅ sin φ2 − sin φ1 ⋅ cos φ2 ⋅ cos Δλ )
-
-float calc_angle(float lat1, float lon1, float lat2, float lon2){
-  lat1 = lat1 / DEG2RAD;
-  lat2 = lat2 / DEG2RAD;
-  lon1 = lon1 / DEG2RAD;
-  lon2 = lon2 / DEG2RAD;
-
-  return(atan2( sin(lon1 - lon2) * cos(lat2) , cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(lon1 - lon2)));
-}
 
 void beep(int duration){
   digitalWrite(BEEP_PIN, HIGH);
   delay(duration);
   digitalWrite(BEEP_PIN, LOW);
 }
-
-
-
